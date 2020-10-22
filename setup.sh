@@ -86,3 +86,54 @@ if [[ $FIREFOX_PROFILE == "" ]] || (( NEW == 1 )); then
 		firefox -CreateProfile "${PROFILE_NAME} ${FIREFOX_PROFILE}"
 	fi
 fi
+
+# Check if firefox_profile is valid
+if ! [[ -d $FIREFOX_PROFILE ]]; then
+	echo "Invalid Firefox Profile Path"
+	exit 3
+fi
+
+# Store Profile to be used
+echo "$FIREFOX_PROFILE" > "$REPO_DIR/.firefox_profile"
+
+echo "Enabling userChrome.css support"
+echo -e '\nuser_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);' >> "$FIREFOX_PROFILE/user.js"
+
+# Starting firefox for customizability
+firefox --profile "$FIREFOX_PROFILE" "$FIRST_LAUNCH" &
+
+echo ""
+echo "Hit Enter once you have completed customizing the profile."
+read -r
+
+# userChrome Hacks
+#
+# Initially stores all selectors to be hidden in HIDDEN_SELECTORS, followed by
+# writing a CSS rule that hides them all
+
+mkdir "$FIREFOX_PROFILE/chrome" &> /dev/null || true
+HIDDEN_SELECTORS=()
+echo -e "Do you want to hide tabs? (y/N)"
+read -r input
+if [[ ${input^^} == "Y" ]]; then
+	HIDDEN_SELECTORS=("${HIDDEN_SELECTORS[@]}" "#tabbrowser-tabs")
+fi
+
+echo -e "Do you want to hide main toolbar (address bar, back, forward, etc)? (y/N)"
+read -r input
+if [[ ${input^^} == "Y" ]]; then
+	HIDDEN_SELECTORS=("${HIDDEN_SELECTORS[@]}" "#nav-bar")
+fi
+
+function join_by {
+	local IFS="$1";
+	shift;
+	echo -n "$*";
+}
+
+if (( ${#HIDDEN_SELECTORS[@]} > 0 )); then
+	join_by , "${HIDDEN_SELECTORS[@]}" >> "$FIREFOX_PROFILE/chrome/userChrome.css"
+	echo "{
+	visibility: collapse !important;
+}" >> "$FIREFOX_PROFILE/chrome/userChrome.css"
+fi
