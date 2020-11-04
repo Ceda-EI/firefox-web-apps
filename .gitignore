@@ -1,1 +1,4 @@
 .firefox_profile
+__pycache__/
+icons/
+bin/
