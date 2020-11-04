@@ -5,7 +5,7 @@ set -euo pipefail
 
 REPO_DIR="$(dirname "$0")"
 BIN_DIR="$REPO_DIR/bin"
-ICON_DIR="$REPO_DIR/icon"
+ICON_DIR="$REPO_DIR/icons"
 FIRST_LAUNCH="https://gitlab.com/ceda_ei/firefox-web-apps/-/wikis/Getting-Started"
 HELP_TEXT="
 Usage:
