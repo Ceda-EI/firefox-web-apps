@@ -2,16 +2,21 @@
 "Creates a firefox web app"
 
 import argparse
+import io
+import shlex
+import stat
 import sys
+import os
 import os.path as pt
 from urllib.parse import urlparse, urlunparse
 from collections import Counter
 
 import requests
 from bs4 import BeautifulSoup
+from PIL import Image
 
 
-REPO_DIR = pt.dirname(sys.argv[0])
+REPO_DIR = pt.abspath(pt.dirname(sys.argv[0]))
 BIN_DIR = f"{REPO_DIR}/bin"
 ICON_DIR = f"{REPO_DIR}/icons"
 
@@ -35,6 +40,40 @@ def absolute_url(base_url, relative_url):
     if not relative.hostname:
         return urlunparse((*base[:2], *relative[2:]))
     return relative_url
+
+
+# pylint: disable=W0613
+def create_webapp(name, url, exec_name, logo, profile):
+    "Creates the necessary files for the webapp."
+    local_vars = locals()
+    # Create a dictionary with shell-quoted version of arguments
+    quoted = {i: shlex.quote(local_vars[i]) for i in ("name", "url", "exec_name",
+                                          "logo", "profile")}
+    # Download and convert the logo
+    logo_pt = f"{ICON_DIR}/{exec_name}.png"
+    res = requests.get(logo, allow_redirects=True)
+    with Image.open(io.BytesIO(res.content)) as img:
+        img.save(logo_pt, "PNG")
+
+    # Create the binary
+    script_pt = f"{BIN_DIR}/{exec_name}"
+    with open(script_pt, "w") as script:
+        script.write("#!/usr/bin/env sh\n")
+        script.write(f"firefox --profile {quoted['profile']} {quoted['url']}\n")
+    os.chmod(script_pt, os.stat(script_pt).st_mode | stat.S_IXUSR | stat.S_IXGRP)
+
+    # Create the desktop file
+    desk_pt = pt.expanduser(f"~/.local/share/applications/{exec_name}.desktop")
+    with open(desk_pt, "w") as desktop:
+        desktop.write(f"""
+[Desktop Entry]
+Name={name} (Web App)
+Exec={script_pt}
+Terminal=false
+Type=Application
+Icon={logo_pt}
+Categories=Network;X-WebApps
+                      """.strip() + "\n")
 
 
 def extract_metadata(url):
@@ -154,6 +193,13 @@ def main():
     print(f"Logo URL:\t\t{args.logo}")
     print(f"Executable Name:\t{args.exec_name}")
     print(f"Firefox Profile:\t{args.firefox_profile}")
+    print()
+    print("Do you want to create the app with the above details (Y/n): ",
+          end=' ')
+    inp = input()
+    if not inp or inp[0].upper() != "N":
+        create_webapp(args.name, args.url, args.exec_name, args.logo,
+                      args.firefox_profile)
 
 
 if __name__ == "__main__":
