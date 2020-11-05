@@ -45,7 +45,9 @@ def extract_metadata(url):
     metadata = {}
 
     # Find the title
-    titles = [soup.title.string]
+    titles = []
+    if soup.title:
+        titles = [soup.title.string]
     for tag in soup.find_all("meta"):
         title_props = ["title", "og:title", "twitter:title"]
         if tag.get("property", None) in title_props \
@@ -53,11 +55,16 @@ def extract_metadata(url):
             titles.append(tag["content"])
     # Set title to the most common if it occurs more than once, else prefer
     # title tag
-    most_common = Counter(titles).most_common(1)[0]
-    if most_common[1] > 1:
-        metadata["title"] = most_common[0].strip()
+    most_common = Counter(titles).most_common(1)
+    if not most_common:
+        metadata["title"] = None
+    elif most_common[0][1] > 1:
+        metadata["title"] = most_common[0][0].strip()
     else:
-        metadata["title"] = soup.title.string.strip()
+        if soup.title:
+            metadata["title"] = soup.title.string.strip()
+        else:
+            metadata["title"] = most_common[0][0].strip()
 
     # Find the image.
     # Try link first, followed by /favicon.{png,ico}, followed by og:, twitter:
@@ -121,6 +128,7 @@ def main():
         eprint(f"Maybe you meant https://{args.url} ?")
         sys.exit(1)
 
+    print("Fetching details ...")
     metadata = extract_metadata(args.url)
     if not args.name:
         args.name = metadata["title"]
