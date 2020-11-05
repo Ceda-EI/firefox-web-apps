@@ -75,7 +75,7 @@ if [[ $FIREFOX_PROFILE == "" ]] || (( NEW == 1 )); then
 		echo -n "Use an existing profile for apps? (y/N): "
 		read -r input
 		if [[ ${input^^} == "Y" ]]; then
-			echo "Enter path to existing profile (or run the script with --firefox_profile): "
+			echo -n "Enter path to existing profile (or run the script with --firefox_profile): "
 			read -r FIREFOX_PROFILE
 		else
 			NEW=1
@@ -113,13 +113,13 @@ read -r
 
 mkdir "$FIREFOX_PROFILE/chrome" &> /dev/null || true
 HIDDEN_SELECTORS=()
-echo -e "Do you want to hide tabs? (y/N)"
+echo -n "Do you want to hide tabs? (y/N) "
 read -r input
 if [[ ${input^^} == "Y" ]]; then
 	HIDDEN_SELECTORS=("${HIDDEN_SELECTORS[@]}" "#tabbrowser-tabs")
 fi
 
-echo -e "Do you want to hide main toolbar (address bar, back, forward, etc)? (y/N)"
+echo -n "Do you want to hide main toolbar (address bar, back, forward, etc)? (y/N) "
 read -r input
 if [[ ${input^^} == "Y" ]]; then
 	HIDDEN_SELECTORS=("${HIDDEN_SELECTORS[@]}" "#nav-bar")
@@ -137,3 +137,5 @@ if (( ${#HIDDEN_SELECTORS[@]} > 0 )); then
 	visibility: collapse !important;
 }" >> "$FIREFOX_PROFILE/chrome/userChrome.css"
 fi
+
+echo "Optional: Add $(cd "$ICON_DIR"; pwd) to your PATH to allowing launching the app from command line"
