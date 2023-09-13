@@ -3,8 +3,16 @@ name = "fwa"
 version = "0.1.0"
 description = "Firefox Web Apps"
 authors = ["Ceda EI <ceda_ei@webionite.com>"]
-license = "GPL-3"
+license = "GPL-3.0-only"
 readme = "README.md"
+repository = "https://gitlab.com/ceda_ei/firefox-web-apps/"
+classifiers = [
+	"Development Status :: 4 - Beta",
+	"Intended Audience :: End Users/Desktop",
+	"License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+	"Operating System :: POSIX :: Linux",
+	"Topic :: Internet",
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -13,7 +21,6 @@ requests = "^2.31.0"
 
 [tool.poetry.scripts]
 fwa-create-app = "fwa.create_app:main"
-
 
 [build-system]
 requires = ["poetry-core"]
