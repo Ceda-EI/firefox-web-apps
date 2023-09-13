@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fwa"
-version = "0.1.0"
+version = "0.2.0"
 description = "Firefox Web Apps"
 authors = ["Ceda EI <ceda_ei@webionite.com>"]
 license = "GPL-3.0-only"
@@ -15,9 +15,10 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 beautifulsoup4 = "^4.12.2"
 requests = "^2.31.0"
+pillow = "^10.0.0"
 
 [tool.poetry.scripts]
 fwa-create-app = "fwa.create_app:main"
