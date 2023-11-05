@@ -19,9 +19,20 @@ python = "^3.8"
 beautifulsoup4 = "^4.12.2"
 requests = "^2.31.0"
 pillow = "^10.0.0"
+toml = "^0.10.2"
+typer = {extras = ["all"], version = "^0.9.0"}
+prompt-toolkit = "^3.0.39"
 
 [tool.poetry.scripts]
 fwa-create-app = "fwa.create_app:main"
+fwa-runner = "fwa.runner:main"
+fwa-setup = "fwa.setup:main"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
 
 [build-system]
 requires = ["poetry-core"]
